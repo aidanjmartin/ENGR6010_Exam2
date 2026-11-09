@@ -1,0 +1,22 @@
+{
+ "world": "mujoco",
+ "seed": 1,
+ "timesteps": 3002368,
+ "hp": {
+  "n_envs": 16,
+  "n_steps": 256,
+  "epochs": 10,
+  "minibatch": 256,
+  "lr": 0.0003,
+  "gamma": 0.99,
+  "lam": 0.95,
+  "clip": 0.2,
+  "vf_coef": 0.5,
+  "ent_coef": 0.0,
+  "max_grad_norm": 0.5,
+  "hidden": 256,
+  "log_std_init": 0.0
+ },
+ "wall_s": 921.5,
+ "steps_per_s": 3258
+}

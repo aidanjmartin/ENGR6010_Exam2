@@ -1,0 +1,47 @@
+{
+ "PPO trained in learned - PPO trained in physics, in physics": {
+  "mean": 0.026666666666666665,
+  "se": 0.02206001405207062,
+  "n_scenarios": 100
+ },
+ "PPO trained in mujoco - PPO trained in physics, in physics": {
+  "mean": 0.019999999999999997,
+  "se": 0.022131126416281278,
+  "n_scenarios": 100
+ },
+ "PPO trained in learned - PPO trained in mujoco, in physics": {
+  "mean": 0.006666666666666663,
+  "se": 0.019522929625053233,
+  "n_scenarios": 100
+ },
+ "PPO trained in learned - PPO trained in physics, in learned": {
+  "mean": 0.06333333333333334,
+  "se": 0.02354402233379677,
+  "n_scenarios": 100
+ },
+ "PPO trained in mujoco - PPO trained in physics, in learned": {
+  "mean": 0.03,
+  "se": 0.022270150335361363,
+  "n_scenarios": 100
+ },
+ "PPO trained in learned - PPO trained in mujoco, in learned": {
+  "mean": 0.03333333333333333,
+  "se": 0.020378021213971732,
+  "n_scenarios": 100
+ },
+ "PPO trained in learned - PPO trained in physics, in mujoco": {
+  "mean": 0.03666666666666667,
+  "se": 0.02266973637363877,
+  "n_scenarios": 100
+ },
+ "PPO trained in mujoco - PPO trained in physics, in mujoco": {
+  "mean": 0.01333333333333333,
+  "se": 0.02503420779742977,
+  "n_scenarios": 100
+ },
+ "PPO trained in learned - PPO trained in mujoco, in mujoco": {
+  "mean": 0.02333333333333333,
+  "se": 0.020789684915305126,
+  "n_scenarios": 100
+ }
+}

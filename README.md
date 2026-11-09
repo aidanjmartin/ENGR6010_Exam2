@@ -334,7 +334,61 @@ Three RL systems: two from the project, one written for this test. `unitree_rl_g
 
 ### 5.3 PPO written out in full: navigation trained in three dynamics models
 
-Q3_PLACEHOLDER
+**Question:** does a policy trained inside a learned model of the dog do as well as one trained inside the hand-built physics model, when both run on a more realistic dog?
+
+**Task:** the Phase 1 navigation task (project `go2x/sim/nav_env.py`, unchanged). The dog starts in a random room of 4 to 8 m with 2 to 6 obstacles and must reach a goal at least 2 m away.
+
+| component | setting (`q3_rl/ppo.py`, project `config/sim.yaml`) |
+| :--- | :--- |
+| state (41 values) | goal distance, cosine and sine of the goal bearing, body velocity, previous action, 32 LiDAR (light detection and ranging) ranges, all scaled to about [-1, 1] |
+| action | Gaussian policy over [-1, 1]^3, scaled to vx ±0.5 m/s, vy ±0.3 m/s, wz ±0.8 rad/s, at 20 Hz |
+| reward | +2.0 per m of progress, +10 success, -10 collision, -0.005 per step |
+| episode end | within 0.3 m of the goal (success), collision, 40 s |
+| policy network | 2 x 256 tanh multilayer perceptron, learned log standard deviation, orthogonal initialization |
+| value network | separate 2 x 256 tanh multilayer perceptron |
+| advantages | generalized advantage estimation (GAE) [Schulman et al., 2016], gamma 0.99, lambda 0.95, bootstrapped from the value of the final state on timeouts |
+| PPO update | clipped surrogate (0.2), value loss weight 0.5, no entropy bonus, Adam 3e-4, 10 epochs, minibatches of 256, gradient norm clip 0.5; settings of the Phase 1 Stable-Baselines3 run |
+| rollouts | 16 environments in parallel processes, 256 steps each per update, 3M steps per run |
+
+**Three training worlds**, which differ only in the dynamics model (`exam2/dyn.py`):
+- **physics:** the Phase 1 lag-delay model, its parameters drawn per episode from the unfitted ranges;
+- **learned:** the Question 1 ensemble, one member per episode with sampled noise;
+- **MuJoCo:** the MuJoCo dog, Unitree's `go2.xml` walked by the MJX walking policy. It is the closest model of the real dog available offline (Question 2).
+
+Each world trained 3 seeds. Each policy was then evaluated, with its mean action, in all three worlds on the same 100 seeded scenarios (seeds 10000 to 10099, as in the Phase 1 evaluation). The Phase 1 go-to-goal controller, which ignores obstacles, was evaluated on the same scenarios as a baseline.
+
+**Training:** 3M steps took 664 to 670 s in the physics and learned worlds and 910 to 922 s in the MuJoCo world, three runs at a time on the Dell's CPU (`q3_rl/runs/*/run.json`). Every run reached 0.74 to 0.81 training success by the end.
+
+![PPO training in three worlds](figures/q3_training.png)
+
+**Cross-evaluation** (`q3_rl/results/cross_eval.md`). Success rate, mean over 3 seeds ± standard error over seeds (100 scenarios per seed). Baseline: binomial standard error over 100 scenarios.
+
+| controller | evaluated in physics | evaluated in learned | evaluated in MuJoCo |
+| :--- | ---: | ---: | ---: |
+| PPO trained in physics | 0.757 ± 0.015 | 0.730 ± 0.015 | 0.747 ± 0.009 |
+| PPO trained in learned | 0.783 ± 0.012 | 0.793 ± 0.009 | 0.783 ± 0.003 |
+| PPO trained in MuJoCo | 0.777 ± 0.009 | 0.760 ± 0.010 | 0.760 ± 0.010 |
+| go-to-goal baseline (Phase 1) | 0.690 ± 0.046 | 0.660 ± 0.047 | 0.640 ± 0.048 |
+
+![Cross-evaluation](figures/q3_cross_eval.png)
+
+Paired by scenario (success averaged over the 3 seeds, then the mean difference ± standard error over 100 scenarios; `q3_rl/results/paired_differences.json`):
+
+| comparison | in physics | in learned | in MuJoCo |
+| :--- | ---: | ---: | ---: |
+| trained in learned - trained in physics | +0.027 ± 0.022 | +0.063 ± 0.024 | +0.037 ± 0.023 |
+| trained in MuJoCo - trained in physics | +0.020 ± 0.022 | +0.030 ± 0.022 | +0.013 ± 0.025 |
+| trained in learned - trained in MuJoCo | +0.007 ± 0.020 | +0.033 ± 0.020 | +0.023 ± 0.021 |
+
+What the data shows:
+- **The PPO implementation works.** Trained in the physics world, it reaches 0.757 ± 0.015 there. The Phase 1 Stable-Baselines3 policy reached 0.79 on the same 100 scenarios (one seed, project `main` `results/eval.md`). Every PPO policy beats the go-to-goal baseline in every world.
+- **Which world to train in:**
+  - The policy trained in the learned model is the best of the three in every evaluation world, including the MuJoCo dog (0.783 ± 0.003).
+  - Paired by scenario, though, its lead over the physics-trained policy in the MuJoCo dog is +0.037 ± 0.023, under two standard errors. Only the learned world's advantage at home (+0.063 ± 0.024) clears two standard errors.
+  - With 3 seeds and 100 scenarios, the three training worlds give policies that are about equal on this task.
+- **Why the models matter little here:** the navigation policies command up to 0.5 m/s forward with turning, mostly outside the small-command range where Question 2 found the models disagree most.
+- **Cost:** the learned model ran 1.5 times faster than the MuJoCo dog (5,856 against 3,978 steps per second in the speed test), with a policy as good.
+- **Falls and timeouts:** no policy fell in the MuJoCo dog, and timeouts were at most 0.003.
 
 ### 5.4 Where each RL component is implemented
 
