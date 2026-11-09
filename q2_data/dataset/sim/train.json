@@ -1,0 +1,13 @@
+{
+ "split": "train",
+ "episodes": 200,
+ "seconds": 30.0,
+ "walker": "mjx_s0",
+ "seeds": [
+  0,
+  199
+ ],
+ "falls": 0,
+ "wall_s": 6.3,
+ "size_mb": 28.9
+}

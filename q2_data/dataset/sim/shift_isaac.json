@@ -1,0 +1,13 @@
+{
+ "split": "shift_isaac",
+ "episodes": 30,
+ "seconds": 30.0,
+ "walker": "isaac",
+ "seeds": [
+  3000,
+  3029
+ ],
+ "falls": 0,
+ "wall_s": 2.2,
+ "size_mb": 4.4
+}

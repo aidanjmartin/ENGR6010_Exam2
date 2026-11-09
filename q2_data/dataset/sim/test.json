@@ -1,0 +1,13 @@
+{
+ "split": "test",
+ "episodes": 30,
+ "seconds": 30.0,
+ "walker": "mjx_s0",
+ "seeds": [
+  2000,
+  2029
+ ],
+ "falls": 0,
+ "wall_s": 2.2,
+ "size_mb": 4.3
+}
