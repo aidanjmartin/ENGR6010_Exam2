@@ -5,7 +5,7 @@ Aidan Martin, ENGR 6010 (AI in Robotics), Middle Tennessee State University, fal
 This report answers the three questions of the Second Test with one robot task: a Unitree Go2 X quadruped walks to an object named in plain language ("go to the red chair") in a 10 ft (3.048 m) square of an atrium.
 
 - **Question 1 (vision, language, machine learning):**
-  - an overhead camera with printed ArUco tags and the OWLv2 open-vocabulary detector turns a sentence into a target on the floor, on the real robot;
+  - an overhead camera with printed ArUco fiducial tags (square black-and-white markers that OpenCV detects and locates) and the OWLv2 (Open-World Localization, version 2) open-vocabulary detector turns a sentence into a target on the floor, on the real robot;
   - a supervised ensemble of 5 neural networks learns the dog's velocity response;
   - a Gaussian pyramid with pyramidal optical flow runs on the dog's own camera frames.
 - **Question 2 (dog data and simulation):**
@@ -17,7 +17,7 @@ This report answers the three questions of the Second Test with one robot task: 
   - a camera-image navigation policy that ran on the real dog (14 of 19 runs succeeded);
   - a proximal policy optimization (PPO) implementation written out in full, trained in three dynamics models and cross-evaluated.
 
-All training ran on our own Dell workstation GPU and CPU at no cost, instead of the Colab Pro the course suggested.
+Q1, Q2 and Q3 below stand for Questions 1, 2 and 3. All training for Phase 2 and this test ran on our own Dell workstation's graphics processor (GPU) and central processor (CPU) at no cost, instead of the Colab Pro the course suggested; the Phase 1 policy trained on our own Ubuntu laptop.
 
 **The walking policies never ran on the real robot.** On the real dog, the navigation policy sent velocity commands to Unitree's own walking controller.
 
@@ -56,7 +56,7 @@ The navigation policy reads a drawn top-down image made from the camera and send
 | :--- | :--- | :--- |
 | vision methods | color space, Gaussian pyramid, optical flow, GrabCut on synthetic images | ArUco calibration and tag pose, OWLv2 language targets on the real robot; pyramidal optical flow on the dog's real camera frames with known ground truth |
 | supervised learning | five classifiers on synthetic patches | a probabilistic ensemble that predicts the dog's motion, tested against physics models and on a walker it never saw |
-| dog data | 20 s stationary recording over WebRTC (Web Real-Time Communication), a data-collection plan | that recording analyzed; 2.4 h of simulated Go2 data with joint, contact and torque fields; real motion tests and 25 real navigation runs compared with simulation |
+| dog data | 20 s stationary recording over WebRTC (Web Real-Time Communication), a data-collection plan | that recording analyzed; 2.4 h of simulated Go2 data with joint, contact and torque fields; real motion tests and 19 real navigation runs compared with simulation |
 | simulation | `unitree_rl_gym` walking in Isaac Gym, 500 iterations, playback at 1.0 m/s | walking trained from scratch in Isaac Lab and in MuJoCo, tested under 13 conditions on Unitree's full Go2 model; navigation in an atrium model; the MuJoCo dog compared with the real dog |
 | reinforcement learning | the `unitree_rl_gym` walking example | three RL systems, one run on the real dog, one with every PPO component written out here |
 
@@ -65,7 +65,7 @@ The navigation policy reads a drawn top-down image made from the camera and send
 | item | details |
 | :--- | :--- |
 | robot | Unitree Go2 X quadruped, Unitree's firmware and walking controller |
-| links | Ethernet tether (Exam 1 and the Phase 1 motion tests, 2026-10-17); the robot's Wi-Fi hotspot (navigation runs, 2026-11-06); both over WebRTC with `unitree_webrtc_connect`, no phone app |
+| links | Ethernet tether (Exam 1 and the Phase 1 motion tests, 2026-10-17); the robot's Wi-Fi hotspot (navigation runs, 2026-11-06). WebRTC with `unitree_webrtc_connect` on both, no phone app; Exam 1 also used Unitree's SDK (software development kit) over DDS (Data Distribution Service) on the tether |
 | camera (real runs) | Logitech Brio 100 webcam, 6.76 m above the floor on the second floor, over USB to the MacBook |
 | laptop | MacBook (Apple M5, macOS): robot runs, camera pipeline, OWLv2 on the CPU |
 | workstation | Dell, Intel Core Ultra 9 285K, NVIDIA RTX 4000 Ada (20 GB), Ubuntu 24.04.5: all training and evaluation, through a job runner for the project and directly for this test |
@@ -82,7 +82,7 @@ The navigation policy reads a drawn top-down image made from the camera and send
 1. **Lens calibration:** a printed ChArUco board (a chessboard with ArUco markers) gives the webcam's focal length and distortion (OpenCV).
 2. **Floor calibration:** four ArUco tags (`DICT_4X4_50`) lie on the corners of the square. Their known floor positions and their pixel positions give the camera pose and the image-to-floor homography (a 3 by 3 projective map).
 3. **Robot pose:** a tag on the robot's back, at a measured height (0.41 m), gives its position and heading every frame. The tag's center is projected through the camera model at that height, not the floor's. Odometry fills gaps of up to 2 s.
-4. **Obstacles and targets:** OWLv2 (Open-World Localization, version 2), an open-vocabulary detector, is asked for "a chair", "a red chair" and so on, about once a second. The bottom center of each box is mapped to the floor with the homography. Optional tags on chairs (ids 20 to 24) fix a chair's position and give its color ("red" is the tag's, not the chair's look).
+4. **Obstacles and targets:** OWLv2, an open-vocabulary detector [Minderer et al., 2023], is asked for "a chair", "a red chair" and so on, about once a second. The bottom center of each box is mapped to the floor with the homography. Optional tags on chairs (ids 20 to 24) fix a chair's position and give its color ("red" is the tag's, not the chair's look).
 5. **Language to target:** the phrase "go to the {color} chair" or "go to the table" selects one object. Its footprint becomes the target channel of the drawn top-down image the navigation policy reads (Question 3).
 
 **Results, rendered scenes** (project job 070, 60 scenes rendered in MuJoCo, 132 prompts; `results/phase2/grounding/grounding_eval.json`). A prompt is correct when the floor point from the best box lies within 0.3 m of the target's footprint.
@@ -113,7 +113,7 @@ Two failures stand out:
 **Data:** the simulated split of the Question 2 dataset, the MuJoCo dog walked by the MuJoCo-trained walking policy. It holds 119,200 training pairs from 200 episodes, plus 30 validation, 30 test and 30 "shift" episodes. The shift episodes use a different walking policy (the Isaac Lab walker), never seen in training. The raw logs of the real motion tests are on the MacBook, so the model was trained on simulated data only.
 
 **Model** (`q1_vision_ml/train_ensemble.py`, `exam2/models.py`): an ensemble of 5 probabilistic networks, following PETS (probabilistic ensembles with trajectory sampling) [Chua et al., 2018]:
-- **Network:** 3 hidden layers of 200 SiLU units each, predicting a Gaussian mean and variance of the next velocity change.
+- **Network:** 3 hidden layers of 200 SiLU (sigmoid linear unit) units each, predicting a Gaussian mean and variance of the next velocity change.
 - **Training:** a bootstrap resample of the data per member; Gaussian negative log likelihood with learned variance bounds; Adam, 40 epochs.
 - **Rollout:** autoregressive, with the members' mean.
 
@@ -159,7 +159,7 @@ Two failures stand out:
 
 ![Optical flow against pyramid depth](figures/q1_optical_flow_pyramid.png)
 
-- **Why the pyramid matters:** single-level Lucas-Kanade loses track beyond about 8 px of motion (0.70 of corners within 1 px at 8 px, 0.28 at 16 px). Each pyramid level doubles the motion it can follow, and 4 levels track 99 % of corners at 64 px. When the dog turns, the scene sweeps across the image by tens of pixels per frame.
+- **Why the pyramid matters:** single-level Lucas-Kanade loses track beyond about 8 px of motion (0.70 of corners within 1 px at 8 px, 0.28 at 16 px). Each pyramid level doubles the motion it can follow, and 4 levels track 99 % of corners at 64 px. A walking or turning dog moves the scene across its camera image much more than a standing one, which is the case a pyramid is for; this test shifts real frames instead, because no recording of the walking dog's camera exists.
 - **Real frames:** between consecutive frames of the standing dog, the median flow is 0.07 to 0.09 px (300 corners per pair). The camera is effectively still.
 
 **Limitations of Question 1:**
@@ -178,7 +178,7 @@ Two failures stand out:
 
 | part | content | size |
 | :--- | :--- | :--- |
-| real, standing (`real_exam1/`) | 400 sport-state messages (body height, velocity estimate) at 20 Hz, 20 low-state messages (IMU, foot force sensors, battery) at 1 Hz, 5 camera frames | 0.2 MB |
+| real, standing (`real_exam1/`) | 400 sport-state messages (body height, velocity estimate) at 20 Hz, 20 low-state messages (inertial measurement unit (IMU) angles, foot force sensors, battery) at 1 Hz, 5 camera frames | 0.2 MB |
 | simulated (`sim/`) | 290 episodes of 30 s (2.4 h) of the MuJoCo Go2 under random velocity commands, with foot friction and payload drawn per episode. Fields follow [`unitree_go2_create_dataset`](https://github.com/ShijieZhao36/unitree_go2_create_dataset): `foot_force`, `motor_q`, `motor_dq`, `motor_ddq`, `motor_tau_est`, plus command, body velocity, pose and IMU | 42 MB |
 | real runs (`results/robot/`) | 4 L-path trials (2026-10-17) and 25 navigation runs (2026-11-06), per run | tables |
 
@@ -188,7 +188,7 @@ The raw logs of the real runs (`state.jsonl`, `commands.jsonl` and others) are o
 
 `q2_data/sensor_stats.py`, real against 215 settled standing stretches of the MuJoCo dog (`q2_data/results/sensor_stats.md`):
 
-| quantity | real mean | real sd | simulated mean | simulated sd |
+| quantity | real mean | real standard deviation (sd) | simulated mean | simulated sd |
 | :--- | ---: | ---: | ---: | ---: |
 | body height (m) | 0.3207 | 2.2e-06 | 0.3177 | 0.0019 |
 | velocity vx (m/s) | +0.0004 | 0.0073 | -0.0003 | 0.0028 |
@@ -237,7 +237,7 @@ What the data shows:
 - **Small commands:** the real dog under-delivers small commands, as a minimum speed in its gait controller would cause. The Phase 1 physics model has no such effect and delivers everything.
 - **Forward and sideways:** the MuJoCo dog with the MuJoCo-trained walker matches the real dog closely (0.63 against 0.65 forward at 0.2 m/s; 0.56 against 0.57 sideways at 0.3 m/s).
 - **Turning in place:** both learned walkers barely turn when told to turn without moving (2 to 9 % of the angle). The real dog turns 14 to 47 %, and 82 degrees of 90 in the closed-loop L-path. The learned walkers' training rarely asks for a pure turn (each axis is drawn independently), which may explain it; this is not checked.
-- **Isaac walker:** it ignores commands of 0.2 m/s or less, so it fails the L-path.
+- **Isaac walker:** it delivers 0.09 of a 0.2 m/s forward command and almost nothing sideways, so it fails the L-path.
 - **Learned ensemble:** it reproduces the MuJoCo dog it learned from in the L-path (0.91 against 0.90 m forward). For long runs of small commands it moves too little.
 - **No simulation is right on every axis.** The fitted and learned models are only as good as the dog that produced their data; real-robot data is the next step.
 
@@ -273,7 +273,7 @@ What the data shows:
 
 ## 5. Question 3: reinforcement learning
 
-Three RL systems: two from the project, one written for this test. `unitree_rl_gym` (the course reference) describes the workflow Train, Play, Sim2Sim (MuJoCo), Sim2Real on Isaac Gym with `legged_gym` and `rsl_rl` (its README, `276801e`); Exam 1 ran its Go2 example. The walking policy here follows the same workflow on Isaac Lab through `unitree_rl_lab` (`4960b84`), Unitree's Isaac Lab counterpart, and keeps the MuJoCo Sim2Sim step. It also adds a second trainer in MuJoCo.
+Three RL systems: two from the project, one written for this test. `unitree_rl_gym` (the course reference) describes the workflow Train, Play, Sim2Sim (MuJoCo), Sim2Real on Isaac Gym with `legged_gym` and `rsl_rl` (its README, `276801e`): train in simulation, play the policy back, check it in a second simulator, then deploy it on the robot. Exam 1 ran its Go2 example. The walking policy here follows the same workflow, except deployment on the robot, on Isaac Lab through `unitree_rl_lab` (`4960b84`), Unitree's Isaac Lab counterpart, and keeps the MuJoCo Sim2Sim step. It also adds a second trainer in MuJoCo.
 
 ### 5.1 Walking from scratch (joint level, simulation only)
 
@@ -286,7 +286,7 @@ Three RL systems: two from the project, one written for this test. `unitree_rl_g
 | episode end | tilt above 0.8 rad, base contact, 20 s |
 | commands | vx -0.5 to 1.0 m/s, vy ±0.5 m/s, wz ±1.0 rad/s, 10 % standing |
 | randomization | friction 0.3 to 1.2, base mass -1 to +3 kg, motor strength and PD gains x 0.8 to 1.2, 20 to 40 ms action delay, pushes up to 0.5 m/s every 5 to 10 s, sensor noise |
-| PPO, Isaac Lab | RSL-RL 3.1.2, `unitree_rl_lab` settings: 4096 environments, 24 steps each, actor and critic 512-256-128 ELU, 5 epochs, 4 minibatches, learning rate 1e-3 (adaptive, KL 0.01), clip 0.2, entropy 0.01, gamma 0.99, lambda 0.95 |
+| PPO, Isaac Lab | RSL-RL 3.1.2, `unitree_rl_lab` settings: 4096 environments, 24 steps each, actor and critic 512-256-128 with ELU (exponential linear unit) activations, 5 epochs, 4 minibatches, learning rate 1e-3 (adapted to a target Kullback-Leibler (KL) divergence of 0.01), clip 0.2, entropy 0.01, gamma 0.99, lambda 0.95 |
 | PPO, MuJoCo MJX | Brax PPO with MuJoCo Playground's Go1 settings: 8192 environments, unroll 20, 32 minibatches, discount 0.97, learning rate 3e-4, entropy 0.01, 512-256-128 networks, critic with privileged state |
 
 **Results** (`results/phase2/`):
@@ -357,7 +357,7 @@ Three RL systems: two from the project, one written for this test. `unitree_rl_g
 
 Each world trained 3 seeds. Each policy was then evaluated, with its mean action, in all three worlds on the same 100 seeded scenarios (seeds 10000 to 10099, as in the Phase 1 evaluation). The Phase 1 go-to-goal controller, which ignores obstacles, was evaluated on the same scenarios as a baseline.
 
-**Training:** 3M steps took 664 to 670 s in the physics and learned worlds and 910 to 922 s in the MuJoCo world, three runs at a time on the Dell's CPU (`q3_rl/runs/*/run.json`). Every run reached 0.74 to 0.81 training success by the end.
+**Training:** 3M steps took 664 to 670 s in the physics and learned worlds and 910 to 922 s in the MuJoCo world, three runs at a time on the Dell's CPU (`q3_rl/runs/*/run.json`). Every run ended at 0.72 to 0.84 training success over its last 200 episodes.
 
 ![PPO training in three worlds](figures/q3_training.png)
 
@@ -386,7 +386,7 @@ What the data shows:
   - The policy trained in the learned model is the best of the three in every evaluation world, including the MuJoCo dog (0.783 ± 0.003).
   - Paired by scenario, though, its lead over the physics-trained policy in the MuJoCo dog is +0.037 ± 0.023, under two standard errors. Only the learned world's advantage at home (+0.063 ± 0.024) clears two standard errors.
   - With 3 seeds and 100 scenarios, the three training worlds give policies that are about equal on this task.
-- **Why the models matter little here:** the navigation policies command up to 0.5 m/s forward with turning, mostly outside the small-command range where Question 2 found the models disagree most.
+- **Why the models may matter little here:** the task allows commands up to 0.5 m/s forward with turning, while Question 2 found the models disagree most for small single-axis commands. How often the policies send such commands was not measured.
 - **Cost:** the learned model ran 1.5 times faster than the MuJoCo dog (5,856 against 3,978 steps per second in the speed test), with a policy as good.
 - **Falls and timeouts:** no policy fell in the MuJoCo dog, and timeouts were at most 0.003.
 
@@ -417,6 +417,8 @@ What the data shows:
 
 Every command runs from the repository root. CPU commands need Python 3.12 and `pip install -r requirements.txt`. MuJoCo commands also need Unitree's models: `export GO2X_UNITREE_MUJOCO=<path to unitree_mujoco>` (`git clone https://github.com/unitreerobotics/unitree_mujoco` at `1eb6642`).
 
+The repository is private until Aidan makes it public.
+
 ```bash
 git clone --recurse-submodules https://github.com/aidanjmartin/ENGR6010_Exam2.git
 cd ENGR6010_Exam2
@@ -435,7 +437,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 | cross-evaluation | `python q3_rl/cross_eval.py` | CPU, minutes |
 | figures | `python figures/make_figures.py` | CPU, seconds |
 | tests | `python -m pytest -q tests` | CPU, under 1 min |
-| walking and navigation in Isaac Lab and MJX | project jobs 030 to 150 (`project/jobs/`, `project/docs/PHASE2_SIM.md`) | Dell GPU through the project's job runner, 53 min (walking) to 4.5 h per run |
+| walking and navigation in Isaac Lab and MJX | project jobs 030 to 150 (`project/jobs/`, `project/docs/PHASE2_SIM.md`) | Dell GPU through the project's job runner, 53 min (walking) to 6.1 h (Isaac Lab navigation) per run |
 | real robot runs | project `scripts/robot/start_run.py` (`project/docs/ROBOT_RUN.md`) | MacBook with the robot and webcam |
 
 ## 7. Data
