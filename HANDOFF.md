@@ -40,4 +40,4 @@ See `STATUS_2026-11-09.md`, section "End state". In short:
 
 ## Push
 
-PUSH_PLACEHOLDER
+Pushed `main` to https://github.com/aidanjmartin/ENGR6010_Exam2 (private, created 2026-11-09 with `gh repo create --private`). A fresh `git clone --recurse-submodules` of the repository passed the tests and reproduced every result file (`LOG.md`, Step 6).
