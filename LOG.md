@@ -23,3 +23,13 @@
 | PPO, 9 runs | `q3_rl/train_all.sh` | 3 seeds x 3 worlds x 3M steps, one seed's 3 worlds in parallel |
 | tests | `python -m pytest -q tests` | 6 passed. On the Dell, `PYTHONPATH` points at ROS 2 Jazzy, whose pytest plugins fail to import (`No module named 'lark'`); run with `env -u PYTHONPATH` |
 | references | arXiv API and Crossref | titles, authors and years checked for references 1 to 11, 14 and 15; 12 and 13 have no DOI |
+
+## 2026-11-09, Step 3 continued and Step 6 (Dell)
+
+| step | command | outcome |
+| :--- | :--- | :--- |
+| PPO, 9 runs | `q3_rl/train_all.sh` | all 9 finished 3,002,368 steps (664 to 922 s each). The wrapper's last line (`tail -1` over several logs) exited with an error after training; no run was affected |
+| cross-evaluation | `q3_rl/cross_eval.py` | every PPO policy beats go-to-goal in every world; paired by scenario, the training worlds differ by less than two standard errors in the MuJoCo dog |
+| fresh clone | `git clone --recurse-submodules`, then tests, `sensor_stats`, `flow_pyramid`, `nav_sim_vs_real`, `small_commands`, `l_path_replay`, `make_figures`, `collect_sim --split val`, `train_ensemble` | 6 tests passed; every result file and figure came out byte-identical, except `ensemble_eval.json`'s run time (161.3 against 277.8 s) |
+| secrets scan | `git grep -nIiE "serial|token|password|api[_-]?key|secret|gho_|ghp_|GO2_IP"` and an IPv4 pattern, outside `project/` | no secrets, robot addresses or serial numbers; the project's `.env` does not exist on the Dell |
+| sizes | `find . -size +10M` | largest file `q2_data/dataset/sim/train.npz`, 28.9 MB; repository without `.git` and `project/` about 60 MB |
