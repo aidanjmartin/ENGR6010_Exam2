@@ -11,3 +11,6 @@ Each line: the decision, then the reason.
 7. Use the MuJoCo dog as a third evaluation world for the Exam 2 PPO policies. It is the closest model to the real dog available offline.
 8. No `caffeinate`, because the Dell runs Linux and stays awake.
 9. Push to `aidanjmartin/ENGR6010_Exam2` as a private repository. Aidan asked for the result on GitHub; the name is free on GitHub.
+10. Write PPO out in full in `q3_rl/ppo.py` instead of calling Stable-Baselines3, so every RL component the question asks for is in this repository's code. Its settings follow the Phase 1 Stable-Baselines3 run, which gives a reference result on the same scenarios.
+11. Train the Exam 2 PPO on the Phase 1 navigation task (LiDAR, random rooms). It runs on the CPU in minutes with any dynamics model; the camera-image task needs Isaac Lab and the GPU.
+12. Train the Exam 2 PPO in a third world, the MuJoCo dog, besides the physics model and the ensemble. It shows how a policy trained in each simple model compares with one trained in the closest available model of the real dog.

@@ -7,6 +7,5 @@ pyyaml==6.0.3
 mujoco==3.16.0
 torch==2.7.0
 gymnasium==1.1.1
-stable-baselines3==2.6.0
 opencv-python-headless==4.11.0.86
 pytest
