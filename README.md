@@ -417,7 +417,6 @@ What the data shows:
 
 Every command runs from the repository root. CPU commands need Python 3.12 and `pip install -r requirements.txt`. MuJoCo commands also need Unitree's models: `export GO2X_UNITREE_MUJOCO=<path to unitree_mujoco>` (`git clone https://github.com/unitreerobotics/unitree_mujoco` at `1eb6642`).
 
-The repository is private until Aidan makes it public.
 
 ```bash
 git clone --recurse-submodules https://github.com/aidanjmartin/ENGR6010_Exam2.git

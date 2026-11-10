@@ -31,13 +31,9 @@ See `STATUS_2026-11-09.md`, section "End state". In short:
 
 1. **The MacBook's `Exam2` folder.** An earlier unattended session may have work there that is not in this repository. Compare before deciding which to keep; this repository does not include it.
 2. **Raw robot logs.** To add the four analyses above, run them on the MacBook against `data/`, or push the 2026-11-06 run folders to this repository after removing the robot's serial number and address.
-3. **Public or not, and Canvas.** The repository is private. To make it public:
-   - with the Dell's `gh` 2.45: `gh repo edit aidanjmartin/ENGR6010_Exam2 --visibility public`;
-   - with a newer `gh`, which asks for an extra flag: `gh repo edit aidanjmartin/ENGR6010_Exam2 --visibility public --accept-visibility-change-consequences`.
-
-   The link to post on Canvas: https://github.com/aidanjmartin/ENGR6010_Exam2
+3. **Canvas.** Aidan asked on 2026-11-10 to make the repository public, and it is now public. The link to post on Canvas: https://github.com/aidanjmartin/ENGR6010_Exam2
 4. **Submodule access.** `project/` points at the public `aidanjmartin/ENGR6010_Go2X_SafeRL`. If that repository is made private, graders cannot fetch the submodule.
 
 ## Push
 
-Pushed `main` to https://github.com/aidanjmartin/ENGR6010_Exam2 (private, created 2026-11-09 with `gh repo create --private`). A fresh `git clone --recurse-submodules` of the repository passed the tests and reproduced every result file (`LOG.md`, Step 6).
+Pushed `main` to https://github.com/aidanjmartin/ENGR6010_Exam2 (created private on 2026-11-09 with `gh repo create --private`, made public on 2026-11-10 at Aidan's request with `gh repo edit --visibility public`). A fresh `git clone --recurse-submodules` of the repository passed the tests and reproduced every result file (`LOG.md`, Step 6).
