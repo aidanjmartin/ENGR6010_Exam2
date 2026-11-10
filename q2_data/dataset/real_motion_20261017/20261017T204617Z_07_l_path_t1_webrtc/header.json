@@ -1,0 +1,48 @@
+{
+  "script": "07_l_path_t1",
+  "start_wall_ns": 1792269977864637000,
+  "start_mono_ns": 1565776231820000,
+  "start_utc": "20261017T204617Z",
+  "host": "Aidan-MacBook",
+  "python": "3.11.17",
+  "backend": {
+    "backend": "webrtc",
+    "library": "unitree_webrtc_connect e0abc57",
+    "topic": "rt/lf/sportmodestate",
+    "motion_mode": null,
+    "untested_on_hardware": true
+  },
+  "safety_config": {
+    "max_vx": 0.2,
+    "max_vy": 0.3,
+    "max_wz": 0.5,
+    "max_lin_accel": 0.5,
+    "max_yaw_accel": 1.0,
+    "command_hz": 20,
+    "state_timeout_s": 0.5,
+    "first_state_timeout_s": 5.0,
+    "max_script_s": 90.0,
+    "stop_repeats": 5
+  },
+  "streams": {
+    "state.jsonl": "sport-mode state, one object per message",
+    "commands.jsonl": "every command sent: requested (before limits) and sent (after)",
+    "events.jsonl": "stand, stop and abort events with reasons"
+  },
+  "firmware": "unknown (Exam 1 handshake data2 = 2: 1.1.11 to 1.1.14)",
+  "max_duration_s": 31.0,
+  "description": "trial 1: forward 0.5 m at 0.2 m/s, turn left 90.0 deg at 0.5 rad/s, forward 0.5 m (closed loop on odometry and IMU)",
+  "trial": 1,
+  "args": {
+    "backend": "webrtc",
+    "trial": 1,
+    "distance": 0.5,
+    "angle": 90.0,
+    "vx": 0.2,
+    "wz": 0.5,
+    "leg_timeout": 8.0,
+    "turn_timeout": 10.0,
+    "t_resp": 0.2,
+    "skip_stand": true
+  }
+}

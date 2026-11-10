@@ -1,0 +1,85 @@
+{
+ "source": "camera (usb), target 'yellow chair', obstacles from both",
+ "scenario": {
+  "robot_start": [
+   0.5814770877514082,
+   -0.09334944181544459,
+   0.817545173455701
+  ],
+  "chairs": [
+   [
+    0.5868991898522915,
+    0.8766099378060688,
+    1.60076565122129,
+    2.0
+   ],
+   [
+    1.0687848386915246,
+    -1.1106583224088369,
+    1.5398421950354326,
+    0.0
+   ],
+   [
+    -1.1265493422520363,
+    0.6657943775990693,
+    1.6204112507042634,
+    3.0
+   ],
+   [
+    -1.173497310241593,
+    -0.7368999238427739,
+    1.526257359862708,
+    1.0
+   ],
+   [
+    1.60011736628514,
+    1.6823487320474795,
+    0.0,
+    0.0
+   ]
+  ],
+  "table": [
+   [
+    1.1961435711004222,
+    0.7836471781529619,
+    1.5753068874399072
+   ]
+  ],
+  "people": [],
+  "target": [
+   "chair",
+   2
+  ]
+ },
+ "backend": "webrtc",
+ "pose_source": "camera",
+ "t0_mono_ns": 224378471254041,
+ "mapping": {
+  "start_pose_square": [
+   0.7047957181930542,
+   -1.1048660278320312,
+   -2.296672821044922
+  ],
+  "first_odom": [
+   -0.483681,
+   -0.500323,
+   -1.593189
+  ]
+ },
+ "outcome": "time limit",
+ "limits": {
+  "max_vx": 0.8,
+  "max_vy": 0.3,
+  "max_wz": 1.0,
+  "max_lin_accel": 1.0,
+  "max_yaw_accel": 2.0,
+  "command_hz": 20,
+  "state_timeout_s": 0.5,
+  "first_state_timeout_s": 5.0,
+  "max_script_s": 60.0,
+  "stop_repeats": 5
+ },
+ "actor": "/Users/aidanjmartin/ENGR6010_Go2X_SafeRL/results/phase2/nav_policy/nav_actor.pt",
+ "policy_steps": 13,
+ "final": "stopped: virtual bumper: the footprint touches an obstacle's footprint"
+}

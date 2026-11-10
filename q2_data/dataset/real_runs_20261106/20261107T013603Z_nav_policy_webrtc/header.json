@@ -1,0 +1,82 @@
+{
+  "script": "nav_policy",
+  "start_wall_ns": 1794015363503209000,
+  "start_mono_ns": 224235484357208,
+  "start_utc": "20261107T013603Z",
+  "host": "Aidan-MacBook",
+  "python": "3.11.17",
+  "backend": {
+    "backend": "webrtc",
+    "library": "unitree_webrtc_connect e0abc57",
+    "topic": "rt/lf/sportmodestate",
+    "motion_mode": null,
+    "method": "LocalAP (robot hotspot)",
+    "topics": [
+      "rt/lf/sportmodestate",
+      "rt/lf/lowstate"
+    ],
+    "untested_over_wifi": true
+  },
+  "safety_config": {
+    "max_vx": 0.8,
+    "max_vy": 0.3,
+    "max_wz": 1.0,
+    "max_lin_accel": 1.0,
+    "max_yaw_accel": 2.0,
+    "command_hz": 20,
+    "state_timeout_s": 0.5,
+    "first_state_timeout_s": 5.0,
+    "max_script_s": 60.0,
+    "stop_repeats": 5
+  },
+  "streams": {
+    "state.jsonl": "sport-mode state, one object per message",
+    "commands.jsonl": "every command sent: requested (before limits) and sent (after)",
+    "events.jsonl": "stand, stop and abort events with reasons"
+  },
+  "firmware": "unknown (Exam 1 handshake data2 = 2: 1.1.11 to 1.1.14)",
+  "max_duration_s": 45.0,
+  "description": "navigation policy, camera (usb), target 'blue chair', obstacles from both",
+  "actor": "nav_actor.pt",
+  "actor_meta": {
+    "image_shape": [
+      8,
+      64,
+      64
+    ],
+    "extra_dim": 3,
+    "cnn_channels": [
+      16,
+      32,
+      32
+    ],
+    "cnn_out": 128,
+    "mlp": [
+      128,
+      64
+    ],
+    "image_view": "robot",
+    "action": {
+      "vx": [
+        0.0,
+        0.8
+      ],
+      "vy": [
+        -0.3,
+        0.3
+      ],
+      "wz": [
+        -1.0,
+        1.0
+      ]
+    },
+    "nav_hz": 10,
+    "success": {
+      "distance": 0.5,
+      "speed": 0.1
+    },
+    "source_checkpoint": "/home/electronics/dell-runner/data/ENGR6010_Go2X_SafeRL/050-nav-train/nav/model_final.pt",
+    "source_sha256": "b230c3eff95edb141e2aa9d905e584bb195f9d1d417deefa9bf141d94674279f",
+    "note": "job 050 attempt 4 (robot view), evaluation 0.780 success on 200 scenarios"
+  }
+}

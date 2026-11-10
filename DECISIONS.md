@@ -14,3 +14,12 @@ Each line: the decision, then the reason.
 10. Write PPO out in full in `q3_rl/ppo.py` instead of calling Stable-Baselines3, so every RL component the question asks for is in this repository's code. Its settings follow the Phase 1 Stable-Baselines3 run, which gives a reference result on the same scenarios.
 11. Train the Exam 2 PPO on the Phase 1 navigation task (LiDAR, random rooms). It runs on the CPU in minutes with any dynamics model; the camera-image task needs Isaac Lab and the GPU.
 12. Train the Exam 2 PPO in a third world, the MuJoCo dog, besides the physics model and the ensemble. It shows how a policy trained in each simple model compares with one trained in the closest available model of the real dog.
+
+2026-11-10, with Aidan's go-ahead to finish the exam ("do whatever you need to complete"):
+
+13. Copy the raw logs from the MacBook into this repository instead of linking to them: the 2026-11-06 navigation runs (`~/ENGR6010_Go2X_SafeRL/data/`) and the 2026-10-17 motion tests (`~/Desktop/Uni/FALL26/ENGR6010/project/data/`). They are on no GitHub branch, and the analyses and graders need them. Only real-robot folders (`_webrtc`) are copied, not the MuJoCo-backend test runs.
+14. Leave out the 233 MB of 2026-11-06 calibration images. The calibration results they produced are in the project's `config/camera_real.yaml`, and no analysis here needs the images.
+15. Re-encode the overhead camera videos (H.264, CRF 26) with every frame kept, which brings them from 96 MB to 8 MB. They are overlays for viewing; no analysis reads them except the contact-sheet figure.
+16. Use the overhead camera as ground truth and anchor the odometry at each run's first camera pose. The run's own odometry mapping (`run.json`) is anchored at the scenario's planned start, not where the robot stood.
+17. Replay the commands as sent (after the safety layer), at rest, from the first camera pose, open loop. These are exactly what the robot received; closing the loop would hide the model error.
+18. Fit a lag-delay model to the real dog and compare it too: leave one run out for the velocity test, and on the other day's runs for the motion tests. The replay uses the fit on all 19 runs and is labeled in-sample.

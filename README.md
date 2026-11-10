@@ -6,11 +6,13 @@ This report answers the three questions of the Second Test with one robot task: 
 
 - **Question 1 (vision, language, machine learning):**
   - an overhead camera with printed ArUco fiducial tags (square black-and-white markers that OpenCV detects and locates) and the OWLv2 (Open-World Localization, version 2) open-vocabulary detector turns a sentence into a target on the floor, on the real robot;
-  - a supervised ensemble of 5 neural networks learns the dog's velocity response;
+  - a supervised ensemble of 5 neural networks learns the dog's velocity response, and is tested on the real dog's recorded motion;
   - a Gaussian pyramid with pyramidal optical flow runs on the dog's own camera frames.
 - **Question 2 (dog data and simulation):**
-  - a documented dataset of real and simulated Go2 recordings;
+  - a documented dataset of real and simulated Go2 recordings, including the raw logs of the 30 real runs that moved the dog (19 navigation runs, 11 motion tests);
   - a direct comparison of the real dog with five simulated dogs on the same command scripts;
+  - the real dog's odometry against the overhead camera, and its recorded commands replayed through every simulated dog;
+  - digital twins of the 19 real navigation runs;
   - the navigation policy's success on the real dog against the same policy in two simulators.
 - **Question 3 (reinforcement learning, RL):**
   - a walking policy trained from scratch at the joint level;
@@ -110,7 +112,7 @@ Two failures stand out:
 
 **Task:** predict the dog's body velocity (vx, vy, wz) 0.1 s and 0.5 s ahead, given its last 4 velocities and velocity commands and the commands over the horizon. This is the prediction a safety filter needs.
 
-**Data:** the simulated split of the Question 2 dataset, the MuJoCo dog walked by the MuJoCo-trained walking policy. It holds 119,200 training pairs from 200 episodes, plus 30 validation, 30 test and 30 "shift" episodes. The shift episodes use a different walking policy (the Isaac Lab walker), never seen in training. The raw logs of the real motion tests are on the MacBook, so the model was trained on simulated data only.
+**Data:** the simulated split of the Question 2 dataset, the MuJoCo dog walked by the MuJoCo-trained walking policy. It holds 119,200 training pairs from 200 episodes, plus 30 validation, 30 test and 30 "shift" episodes. The shift episodes use a different walking policy (the Isaac Lab walker), never seen in training. The model is trained on simulated data only, then tested on the real dog's recorded motion (below).
 
 **Model** (`q1_vision_ml/train_ensemble.py`, `exam2/models.py`): an ensemble of 5 probabilistic networks, following PETS (probabilistic ensembles with trajectory sampling) [Chua et al., 2018]:
 - **Network:** 3 hidden layers of 200 SiLU (sigmoid linear unit) units each, predicting a Gaussian mean and variance of the next velocity change.
@@ -137,6 +139,30 @@ Two failures stand out:
 - **New walker:** on the walker it never saw, its forward error doubles (0.033 to 0.074 m/s) but stays the lowest of the four models.
 - **Uncertainty:** its one-step 95 % (2-sigma) intervals hold 96.5 to 96.9 % of the true values on the test split. On the shift split they hold 88.3 to 94.0 %: it is overconfident on the new walker, as an ensemble trained on one walker can be.
 - **Small commands:** Question 2 shows a limit. Over long open-loop runs of small commands, the ensemble moves the dog less than the MuJoCo dog it learned from (0.26 against 0.63 of a 0.5 m forward command).
+
+**On the real dog** (`q2_data/real_runs.py`, `q2_data/results/real_runs.md`). The same test on the real Go2 X's recorded state and commands, at 20 Hz:
+- the 19 navigation runs of 2026-11-06 (fast, with turns up to 1 rad/s);
+- 11 Phase 1 motion tests of 2026-10-17 (single-axis moves at 0.15 to 0.5 m/s or rad/s, the Phase 1 RL policy, L-path trials 1 to 4).
+
+A fifth model joins the comparison: the lag-delay model fitted to the real dog. For the navigation runs it is fitted on the other 18 runs; for the motion tests, on all 19 navigation runs.
+
+| 0.5 s ahead, real dog | vx (m/s), navigation | wz (rad/s), navigation | vx (m/s), motion tests | wz (rad/s), motion tests |
+| :--- | ---: | ---: | ---: | ---: |
+| constant velocity | 0.184 ± 0.027 | 0.425 ± 0.020 | 0.041 ± 0.008 | 0.084 ± 0.015 |
+| lag-delay, Phase 1 (unfitted) | 0.101 ± 0.014 | 0.220 ± 0.011 | 0.050 ± 0.013 | 0.105 ± 0.020 |
+| lag-delay, fitted to the MuJoCo dog | 0.089 ± 0.012 | 0.179 ± 0.009 | 0.049 ± 0.013 | 0.099 ± 0.018 |
+| lag-delay, fitted to the real dog | **0.084 ± 0.011** | **0.103 ± 0.007** | 0.052 ± 0.015 | 0.104 ± 0.022 |
+| ensemble (5 networks) | 0.091 ± 0.012 | 0.277 ± 0.012 | **0.030 ± 0.006** | **0.082 ± 0.014** |
+
+Mean ± standard error over runs (19 and 11).
+
+![Ensemble on the real dog](figures/q1_ensemble_real.png)
+
+- **Forward and sideways:** the ensemble transfers. Its forward error on the navigation runs (0.091 m/s) is within one standard error of the best model's. Its sideways error is the lowest on both days (0.067 and 0.021 m/s).
+- **Turning on the navigation runs:** the ensemble fails. Its 0.277 rad/s error is 2.7 times that of the lag-delay model fitted to the real dog (0.103). The MuJoCo walker it learned from barely turns in place (Question 2), so the ensemble predicts too little turning when the real dog turns at up to 1 rad/s.
+- **Motion tests:** the ensemble has the lowest error on every axis. These tests hold small, steady commands, the regime closest to its training data.
+- **Uncertainty:** on the real dog the ensemble is overconfident. Its one-step 95 % intervals hold 28 to 51 % of the true changes on the navigation runs, and 67 to 82 % on the motion tests, against 96.5 to 96.9 % on simulated test episodes.
+- **What the real data says about the physics model:** fitted to the real dog, the lag-delay model's time constants are 0.14 s (forward), 0.38 s (sideways) and 0.08 s (turning). The simulated dog gives 0.24 to 0.28 s on all three. The real dog turns faster and sidesteps slower than the simulated one.
 
 ### 3.3 (A) vision: Gaussian pyramid and pyramidal optical flow on the dog's camera
 
@@ -167,7 +193,7 @@ Two failures stand out:
 - People are cylinders in the rendered evaluation.
 - The corner tags are about 5.5 cm off a true square.
 - OWLv2's floor points lie 0.1 to 0.35 m nearer the camera than the truth in simulation.
-- The ensemble learned from simulated data only.
+- The ensemble learned from simulated data only. On the real dog its turning prediction fails on the navigation runs, and its uncertainty is overconfident.
 - The optical-flow test uses synthetic shifts of real frames, because no recording of the dog's camera while walking exists.
 
 ## 4. Question 2: dog data and simulation
@@ -180,9 +206,9 @@ Two failures stand out:
 | :--- | :--- | :--- |
 | real, standing (`real_exam1/`) | 400 sport-state messages (body height, velocity estimate) at 20 Hz, 20 low-state messages (inertial measurement unit (IMU) angles, foot force sensors, battery) at 1 Hz, 5 camera frames | 0.2 MB |
 | simulated (`sim/`) | 290 episodes of 30 s (2.4 h) of the MuJoCo Go2 under random velocity commands, with foot friction and payload drawn per episode. Fields follow [`unitree_go2_create_dataset`](https://github.com/ShijieZhao36/unitree_go2_create_dataset): `foot_force`, `motor_q`, `motor_dq`, `motor_ddq`, `motor_tau_est`, plus command, body velocity, pose and IMU | 42 MB |
-| real runs (`results/robot/`) | 4 L-path trials (2026-10-17) and 25 navigation runs (2026-11-06), per run | tables |
-
-The raw logs of the real runs (`state.jsonl`, `commands.jsonl` and others) are on the MacBook and not in this repository ([Data](#7-data)).
+| real navigation runs (`real_runs_20261106/`) | raw logs of the 25 navigation runs of 2026-11-06 over the robot's Wi-Fi (19 with policy steps) and one link check: sport state at 20 Hz (odometry, velocity estimate, IMU, foot forces), joint angles, every command sent, every policy step with its camera pose, OWLv2 detections, the overhead camera's frames at each policy step, and a digital-twin video per run | 32 MB |
+| real motion tests (`real_motion_20261017/`) | raw logs of the 16 Phase 1 runs of 2026-10-17 on the Ethernet tether (11 with motion): forward, rotate, lateral, the Phase 1 RL policy, L-path trials | 4 MB |
+| real run tables (`results/robot/`) | 4 L-path trials (2026-10-17) and 25 navigation runs (2026-11-06), per run | tables |
 
 ### 4.2 Sensor statistics of the standing dog
 
@@ -256,19 +282,77 @@ What the data shows:
 - **Distance:** in every world, starts of 1.9 m or more succeed less often.
 - **Sample size:** 19 real runs cannot separate the worlds.
 
-### 4.5 Digital twin and MuJoCo check
+### 4.5 The real dog's odometry against the overhead camera
 
-- **Digital twin:** the project's `scripts/robot/render_twin.py` rebuilds a run in MuJoCo from its logs alone. `results/phase2/mujoco_videos/twin_scenario023.mp4` is a simulated run rebuilt this way. Rendering twins of the real 2026-11-06 runs needs their raw logs, which are on the MacBook (not run here).
-- **MuJoCo check of the Isaac Lab walker** (project job 080, `results/phase2/mujoco_check/mujoco_check.md`): on the same 100 episodes, its tracking error in MuJoCo is about twice that in Isaac Lab:
-  - vx 0.125 against 0.060 m/s;
-  - wz 0.194 against 0.101 rad/s;
-  - no falls.
+`q2_data/real_runs.py`, section 1 of `q2_data/results/real_runs.md`. In each of the 19 navigation runs, the robot's odometry is anchored at the first camera pose and compared with the camera pose at every policy step where the camera saw the robot's tag (507 steps).
 
-  Unitree's MuJoCo model adds joint damping, friction loss and armature that the Isaac model lacks. Whether these explain the gap is not yet checked.
+| quantity | value |
+| :--- | ---: |
+| position error at the run's end | 0.147 ± 0.021 m (n = 19) |
+| heading error at the run's end | 6.5 ± 1.6 deg |
+| end error per meter walked, runs over 0.5 m | 0.142 ± 0.007 m per m (n = 13) |
+| odometry path length / camera path length, same runs | 0.827 ± 0.008 |
+
+| distance walked (m) | steps | median error (m) | 90th percentile (m) |
+| :--- | ---: | ---: | ---: |
+| 0 to 0.5 | 340 | 0.021 | 0.066 |
+| 0.5 to 1.0 | 87 | 0.090 | 0.143 |
+| 1.0 to 1.5 | 50 | 0.209 | 0.242 |
+| 1.5 to 2.5 | 30 | 0.243 | 0.279 |
+
+![Odometry against the camera](figures/q2_camera_vs_odometry.png)
+
+- **Drift grows with distance**, at about 0.15 m per m walked, from 2 cm in the first half meter to about 0.25 m after 1.5 m.
+- **Most of it is a scale error.** Odometry reports 83 % of the distance the camera measures, in every run over 0.5 m (standard error 0.008). The camera's own scale error is about 2 %: the corner tags lie 2.98 and 3.11 m apart against 3.048 m (Question 1). So the robot walks about a fifth farther than its odometry says.
+- **Consequence for Phase 1:** every Phase 1 motion result (Question 2, 4.3) was measured with this odometry. If the same scale holds on the Ethernet tether, the real dog delivered about 1.2 times the travel those tables show. This is not checked, since Phase 1 had no camera.
+- **Heading** drifts less: 6.5 degrees at the run's end, and the median grows only from 3.5 to 4.8 degrees across the distance bins.
+
+### 4.6 Recorded commands replayed through the simulated dogs, with path error
+
+`q2_data/real_runs.py`, section 2 of `q2_data/results/real_runs.md`. The commands each real run sent (20 Hz, after the safety layer's limits) are replayed open loop through each model, from the run's first camera pose and at rest. The model's path is compared with the camera path at the camera steps.
+
+| model | mean position error (m) | end position error (m) | end heading error (deg) | path length / camera path |
+| :--- | ---: | ---: | ---: | ---: |
+| odometry (the dog's own estimate, for reference) | 0.059 ± 0.009 | 0.147 ± 0.021 | 6.5 ± 1.6 | 0.83 ± 0.01 |
+| physics, Phase 1 (unfitted) | 0.070 ± 0.010 | 0.160 ± 0.025 | 10.6 ± 1.6 | 0.92 ± 0.02 |
+| physics, fitted to the MuJoCo dog | 0.073 ± 0.009 | 0.165 ± 0.024 | 9.1 ± 1.5 | 0.94 ± 0.02 |
+| physics, fitted to the real dog (in-sample) | **0.053 ± 0.007** | **0.107 ± 0.015** | 6.9 ± 1.4 | 0.95 ± 0.02 |
+| learned ensemble (mean) | 0.148 ± 0.031 | 0.480 ± 0.113 | 45.1 ± 6.0 | 0.82 ± 0.01 |
+| MuJoCo dog, MuJoCo walker | 0.118 ± 0.025 | 0.386 ± 0.093 | 37.2 ± 5.2 | 0.89 ± 0.01 |
+
+Mean ± standard error over 19 runs; the path-length column uses the 13 runs over 0.5 m.
+
+![Replay path error](figures/q2_replay_path_error.png)
+
+- **The simple physics model replays the real paths best.** Even unfitted, it ends 0.16 m from the camera, about as close as the dog's own odometry (0.15 m). Fitted to the real dog's velocities, it ends 0.11 m away. That fit uses all 19 runs, so it is not an out-of-sample result.
+- **The MuJoCo dog and the ensemble drift off in heading** (37 and 45 degrees at the end). Both under-turn, as the single-axis tests in 4.3 showed, so their paths curve too little. In 7 (MuJoCo dog) and 8 (ensemble) of the 19 runs this leaves them more than 0.4 m from the camera's end point, up to 1.6 and 1.9 m, against at most 0.44 m for the unfitted physics model.
+- **Every model walks less far than the real dog** (0.82 to 0.95 of the camera path). On the same commands, the real dog covers more ground than any model predicts.
+
+### 4.7 Digital twins of the real runs
+
+The project's `scripts/robot/render_twin.py` rebuilds a run in MuJoCo from its logs alone: robot pose from the camera poses the policy used, joint angles from the low-state messages, and obstacles from the last perceived layout. All 19 real navigation runs have a twin video, `twin.mp4`, in their folder in `q2_data/dataset/real_runs_20261106/`. They were rendered on the MacBook on 2026-11-09.
+
+![Camera against digital twin](figures/q2_twin_vs_camera.jpg)
+
+`q2_data/twin_frames.py`: the overhead camera at the last policy step of four runs, beside the twin at the same moment. The twin shows the fixed camera's view, a chase camera, and the drawn image the policy read.
+
+![All real runs on the floor plan](figures/q2_real_runs_paths.png)
+
+Every real run on the floor plan, from `q2_data/real_runs.py`: the camera path (solid), the dog's odometry (dashed), and the run's commands replayed through the MuJoCo dog (dash-dot) and the Phase 1 physics model (dotted). Obstacles are the last layout the camera perceived.
+
+### 4.8 MuJoCo check of the Isaac Lab walker
+
+Project job 080, `results/phase2/mujoco_check/mujoco_check.md`. On the same 100 episodes, the Isaac Lab walker's tracking error in MuJoCo is about twice that in Isaac Lab:
+- vx 0.125 against 0.060 m/s;
+- wz 0.194 against 0.101 rad/s;
+- no falls.
+
+Unitree's MuJoCo model adds joint damping, friction loss and armature that the Isaac model lacks. Whether these explain the gap is not yet checked.
 
 **Limitations of Question 2:**
-- The real motion data are single runs or 4 trials, measured by the robot's own odometry. Only the 2026-11-06 runs have camera ground truth, and their raw logs are not here.
-- The camera-against-odometry drift analysis and the path-error replay of the 2026-11-06 runs were not run, for that reason.
+- The Phase 1 motion data are single runs or 4 trials, measured by the robot's own odometry, which reads about 17 % short on the 2026-11-06 runs. Only the 2026-11-06 runs have camera ground truth.
+- The camera pose has its own error: the corner tags are up to 5.5 cm off a true square, and the tag fix lags the moment the policy uses it. The analyses do not correct for either.
+- The replays start each run at rest and run open loop, so a heading error early in a run grows into a large position error later.
 - The real dog runs Unitree's controller, while the simulated dogs run our learned walkers.
 
 ## 5. Question 3: reinforcement learning
@@ -417,7 +501,6 @@ What the data shows:
 
 Every command runs from the repository root. CPU commands need Python 3.12 and `pip install -r requirements.txt`. MuJoCo commands also need Unitree's models: `export GO2X_UNITREE_MUJOCO=<path to unitree_mujoco>` (`git clone https://github.com/unitreerobotics/unitree_mujoco` at `1eb6642`).
 
-
 ```bash
 git clone --recurse-submodules https://github.com/aidanjmartin/ENGR6010_Exam2.git
 cd ENGR6010_Exam2
@@ -432,6 +515,9 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 | pyramid and optical flow | `python q1_vision_ml/flow_pyramid.py` | CPU, under 1 min |
 | small commands, L-path | `python q2_data/small_commands.py`, `python q2_data/l_path_replay.py` | CPU, about 1 min |
 | navigation, simulation against real | `python q2_data/nav_sim_vs_real.py` | CPU, seconds |
+| real runs: odometry against camera, command replay, ensemble on real motion, floor-plan figure | `python q2_data/real_runs.py` | CPU, about 15 s (cloud container, 2026-11-10) |
+| camera against digital twin figure | `python q2_data/twin_frames.py` (needs `ffmpeg`) | CPU, seconds |
+| digital twin of a real run | `cd project && python scripts/robot/render_twin.py ../q2_data/dataset/real_runs_20261106/<run> --model_dir <unitree_mujoco>` | MacBook (the 19 twins were rendered there on 2026-11-09) |
 | Exam 2 PPO, 9 runs | `PYTHON=python bash q3_rl/train_all.sh` | CPU, about 1 h |
 | cross-evaluation | `python q3_rl/cross_eval.py` | CPU, minutes |
 | figures | `python figures/make_figures.py` | CPU, seconds |
@@ -445,13 +531,15 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 | :--- | :--- |
 | real stationary recording and camera frames (Exam 1) | `q2_data/dataset/real_exam1/` |
 | simulated Go2 dataset | `q2_data/dataset/sim/` |
+| raw logs of the real navigation runs (2026-11-06), camera frames and digital twins | `q2_data/dataset/real_runs_20261106/` |
+| raw logs of the Phase 1 motion tests (2026-10-17) | `q2_data/dataset/real_motion_20261017/` |
 | real run tables | `results/robot/` |
 | Phase 2 results (tables, JSON, figures, 6 short videos) | `results/phase2/` (source: `results/phase2/SOURCE.md`) |
 | results of this test | `q1_vision_ml/results/`, `q2_data/results/`, `q3_rl/results/` |
 
 | not in this repository | where |
 | :--- | :--- |
-| raw logs of the real motion tests (2026-10-17) and camera runs (2026-11-06) | the MacBook's project clone, `data/` |
+| the 2026-11-06 calibration images (ChArUco board views, floor frames; 230 MB) | the MacBook's project clone, `data/` |
 | Isaac Lab walking transitions (13 MB) and 60 rendered scenes | the Dell, project job outputs |
 
 Field descriptions: [`q2_data/dataset/DATASET.md`](q2_data/dataset/DATASET.md).
@@ -466,9 +554,9 @@ LOG.md                     what was run, in order, with outcomes
 HANDOFF.md                 end state and what needs Aidan
 requirements.txt           Python packages and versions
 project/                   submodule: aidanjmartin/ENGR6010_Go2X_SafeRL at 46db755
-exam2/                     shared code: MuJoCo dog, dynamics models, model adapters
+exam2/                     shared code: MuJoCo dog, dynamics models, model adapters, real-run loader
 q1_vision_ml/              ensemble, pyramid and optical flow; results/
-q2_data/                   dataset (dataset/), collection, statistics and replays; results/
+q2_data/                   dataset (dataset/), collection, statistics, replays, real-run analyses; results/
 q3_rl/                     PPO, training script, cross-evaluation; runs/, results/
 results/phase2/            Phase 2 results copied from the project
 results/robot/             real robot run tables

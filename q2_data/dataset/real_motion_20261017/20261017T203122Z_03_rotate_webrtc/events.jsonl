@@ -1,0 +1,5 @@
+{"t_mono_ns": 1564910369317291, "t_wall_ns": 1792269083156691000, "event": "connected"}
+{"t_mono_ns": 1564910369378625, "t_wall_ns": 1792269083156752000, "event": "first_state"}
+{"t_mono_ns": 1564915529732333, "t_wall_ns": 1792269088317061000, "event": "stop", "reason": "end of script"}
+{"t_mono_ns": 1564915823751666, "t_wall_ns": 1792269088611078000, "event": "stop_move_sent"}
+{"t_mono_ns": 1564915826719833, "t_wall_ns": 1792269088614045000, "event": "closed"}

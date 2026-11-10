@@ -1,0 +1,96 @@
+{
+ "source": "camera (usb), target 'table', obstacles from both",
+ "scenario": {
+  "robot_start": [
+   -0.0892022400840795,
+   0.4914923490664048,
+   0.5589029833036712
+  ],
+  "chairs": [
+   [
+    0.5895121714830154,
+    0.8733307638608181,
+    1.5786216150455248,
+    2.0
+   ],
+   [
+    -1.1263003212661946,
+    0.6662984950215785,
+    1.6213986646914802,
+    3.0
+   ],
+   [
+    -1.1730079113200031,
+    -0.7375220806495862,
+    1.5277231707112917,
+    1.0
+   ],
+   [
+    1.0699782845350916,
+    -1.1112521782557387,
+    1.5418402785854037,
+    0.0
+   ],
+   [
+    -1.6181501364059323,
+    -1.5689459982073404,
+    0.0,
+    0.0
+   ]
+  ],
+  "table": [
+   [
+    1.1973096376459855,
+    0.7840109319849671,
+    1.5820753357711743
+   ]
+  ],
+  "people": [
+   {
+    "start": [
+     0.8972849651940992,
+     0.4072002733228481
+    ],
+    "walking": false,
+    "a": null,
+    "b": null,
+    "script": []
+   }
+  ],
+  "target": [
+   "table",
+   0
+  ]
+ },
+ "backend": "webrtc",
+ "pose_source": "camera",
+ "t0_mono_ns": 224632893085375,
+ "mapping": {
+  "start_pose_square": [
+   0.7047957181930542,
+   -1.1048660278320312,
+   -2.296672821044922
+  ],
+  "first_odom": [
+   0.405167,
+   0.334827,
+   2.013651
+  ]
+ },
+ "outcome": "time limit",
+ "limits": {
+  "max_vx": 0.8,
+  "max_vy": 0.3,
+  "max_wz": 1.0,
+  "max_lin_accel": 1.0,
+  "max_yaw_accel": 2.0,
+  "command_hz": 20,
+  "state_timeout_s": 0.5,
+  "first_state_timeout_s": 5.0,
+  "max_script_s": 60.0,
+  "stop_repeats": 5
+ },
+ "actor": "/Users/aidanjmartin/ENGR6010_Go2X_SafeRL/results/phase2/nav_policy/nav_actor.pt",
+ "policy_steps": 40,
+ "final": "stopped: the camera has not seen the robot tag for 2.0 s"
+}

@@ -1,0 +1,35 @@
+{
+  "script": "01_stand",
+  "start_wall_ns": 1792268806442743000,
+  "start_mono_ns": 1564633652914625,
+  "start_utc": "20261017T202646Z",
+  "host": "Aidan-MacBook",
+  "python": "3.11.17",
+  "backend": {
+    "backend": "webrtc",
+    "library": "unitree_webrtc_connect e0abc57",
+    "topic": "rt/lf/sportmodestate",
+    "motion_mode": null,
+    "untested_on_hardware": true
+  },
+  "safety_config": {
+    "max_vx": 0.2,
+    "max_vy": 0.2,
+    "max_wz": 0.5,
+    "max_lin_accel": 0.5,
+    "max_yaw_accel": 1.0,
+    "command_hz": 20,
+    "state_timeout_s": 0.5,
+    "first_state_timeout_s": 5.0,
+    "max_script_s": 90.0,
+    "stop_repeats": 5
+  },
+  "streams": {
+    "state.jsonl": "sport-mode state, one object per message",
+    "commands.jsonl": "every command sent: requested (before limits) and sent (after)",
+    "events.jsonl": "stand, stop and abort events with reasons"
+  },
+  "firmware": "unknown (Exam 1 handshake data2 = 2: 1.1.11 to 1.1.14)",
+  "max_duration_s": 25,
+  "description": "stand up and hold 10 s"
+}

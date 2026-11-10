@@ -33,3 +33,18 @@
 | fresh clone | `git clone --recurse-submodules`, then tests, `sensor_stats`, `flow_pyramid`, `nav_sim_vs_real`, `small_commands`, `l_path_replay`, `make_figures`, `collect_sim --split val`, `train_ensemble` | 6 tests passed; every result file and figure came out byte-identical, except `ensemble_eval.json`'s run time (161.3 against 277.8 s) |
 | secrets scan | `git grep -nIiE "serial|token|password|api[_-]?key|secret|gho_|ghp_|GO2_IP"` and an IPv4 pattern, outside `project/` | no secrets, robot addresses or serial numbers; the project's `.env` does not exist on the Dell |
 | sizes | `find . -size +10M` | largest file `q2_data/dataset/sim/train.npz`, 28.9 MB; repository without `.git` and `project/` about 60 MB |
+
+## 2026-11-10, raw logs and the four remaining analyses (cloud session, linked to the MacBook)
+
+| step | command | outcome |
+| :--- | :--- | :--- |
+| look for the raw logs on GitHub | `git ls-remote` of the project; every branch's tree | not on any branch (`data/` is git-ignored) |
+| copy from the MacBook | the session's file bridge, read-only | 25 navigation run folders and a link check (2026-11-06), 16 motion-test folders (2026-10-17). The MacBook has no `Exam2` folder in the course folder |
+| privacy scan | IPv4 pattern and key-name search (`serial`, `sn`, `ip`, `addr`, `host`, `ssid`, `key`) over every `.json` and `.jsonl` | no addresses or serial numbers; only `"host": "Aidan-MacBook"` in headers |
+| velocity frame | `velocity` integrated against `position`, 24 runs | body frame: integrated end error 0.03 to 0.18 m against up to 2.6 m for a world-frame reading |
+| camera videos | `ffmpeg -c:v libx264 -preset veryfast -crf 26`, frame counts compared before and after | 96 MB to 8 MB, every frame kept |
+| unitree_mujoco | `git clone`, checkout `1eb6642` | for the MuJoCo-dog replay |
+| analyses | `python q2_data/real_runs.py` (12.5 s) | odometry reads 0.827 ± 0.008 of the camera path; drift 0.146 m per m. Replay end error: physics model 0.16 m, MuJoCo dog 0.39 m, ensemble 0.48 m. Ensemble on real motion: best on the motion tests, worst on turning in the navigation runs |
+| first figure | floor-plan panels | axis lines drawn across the panels; spines turned off |
+| twin figure | `python q2_data/twin_frames.py` | camera frame and twin frame at the last policy step of 4 runs |
+| tests | `python -m pytest -q tests` | 9 passed (3 new: the raw logs give the run table's counts, the odometry mapping, the motion-test loader) |

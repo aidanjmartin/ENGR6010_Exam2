@@ -1,0 +1,73 @@
+{
+ "source": "camera (usb), target 'red chair', obstacles from both",
+ "scenario": {
+  "robot_start": [
+   -0.4883502428245973,
+   0.194409409782458,
+   -1.5254480149870635
+  ],
+  "chairs": [
+   [
+    -0.23284805023047195,
+    -0.4836463108301564,
+    1.6168678423432044,
+    2.0
+   ],
+   [
+    -0.8344936162488512,
+    -0.49962591527666034,
+    1.715894245307952,
+    1.0
+   ],
+   [
+    0.25700937960896075,
+    -0.03044481120729947,
+    1.6675265966665989,
+    0.0
+   ],
+   [
+    -1.281244067821817,
+    -0.45675939203127003,
+    1.5636954320643213,
+    3.0
+   ]
+  ],
+  "table": [],
+  "people": [],
+  "target": [
+   "chair",
+   2
+  ]
+ },
+ "backend": "webrtc",
+ "pose_source": "camera",
+ "t0_mono_ns": 225116917012166,
+ "mapping": {
+  "start_pose_square": [
+   0.7047957181930542,
+   -1.1048660278320312,
+   -2.296672821044922
+  ],
+  "first_odom": [
+   -0.023065,
+   0.320848,
+   2.604214
+  ]
+ },
+ "outcome": "success: front 0.49 m from the target, speed 0.06 m/s",
+ "limits": {
+  "max_vx": 0.8,
+  "max_vy": 0.3,
+  "max_wz": 1.0,
+  "max_lin_accel": 1.0,
+  "max_yaw_accel": 2.0,
+  "command_hz": 20,
+  "state_timeout_s": 0.5,
+  "first_state_timeout_s": 5.0,
+  "max_script_s": 60.0,
+  "stop_repeats": 5
+ },
+ "actor": "/Users/aidanjmartin/ENGR6010_Go2X_SafeRL/results/phase2/nav_policy/nav_actor.pt",
+ "policy_steps": 9,
+ "final": "success: front 0.49 m from the target, speed 0.06 m/s"
+}

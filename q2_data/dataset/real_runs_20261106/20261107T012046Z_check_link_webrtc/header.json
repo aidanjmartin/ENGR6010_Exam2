@@ -1,0 +1,30 @@
+{
+  "script": "check_link",
+  "start_wall_ns": 1794014446790491000,
+  "start_mono_ns": 223318765840333,
+  "start_utc": "20261107T012046Z",
+  "host": "Aidan-MacBook",
+  "python": "3.11.17",
+  "backend": {
+    "backend": "webrtc",
+    "library": "unitree_webrtc_connect e0abc57",
+    "topic": "rt/lf/sportmodestate",
+    "motion_mode": null,
+    "method": "LocalAP (robot hotspot)",
+    "topics": [
+      "rt/lf/sportmodestate",
+      "rt/lf/lowstate"
+    ],
+    "untested_over_wifi": true
+  },
+  "safety_config": {
+    "read_only": true
+  },
+  "streams": {
+    "state.jsonl": "sport-mode state, one object per message",
+    "commands.jsonl": "every command sent: requested (before limits) and sent (after)",
+    "events.jsonl": "stand, stop and abort events with reasons"
+  },
+  "firmware": "unknown (Exam 1 handshake data2 = 2: 1.1.11 to 1.1.14)",
+  "description": "read-only wireless link check; no request sent"
+}

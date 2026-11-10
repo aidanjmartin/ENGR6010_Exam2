@@ -1,0 +1,90 @@
+{
+ "source": "camera (usb), target 'table', obstacles from both",
+ "scenario": {
+  "robot_start": [
+   0.08157949268818795,
+   0.5377009571189251,
+   0.4223583394556767
+  ],
+  "chairs": [
+   [
+    0.7060366092684971,
+    -0.3106783597527967,
+    1.5857576757402048,
+    2.0
+   ],
+   [
+    -1.12734321820429,
+    0.6651545459106187,
+    1.620380952705144,
+    3.0
+   ],
+   [
+    -1.1739853319001186,
+    -0.7380624429928904,
+    1.5287546542502606,
+    1.0
+   ],
+   [
+    1.0695824105100131,
+    -1.1108766573626647,
+    1.5377918578020375,
+    0.0
+   ]
+  ],
+  "table": [
+   [
+    1.1964413550213722,
+    0.7841338544804968,
+    1.5842024673101947
+   ]
+  ],
+  "people": [
+   {
+    "start": [
+     0.7005202091133018,
+     1.0844763572977114
+    ],
+    "walking": false,
+    "a": null,
+    "b": null,
+    "script": []
+   }
+  ],
+  "target": [
+   "table",
+   0
+  ]
+ },
+ "backend": "webrtc",
+ "pose_source": "camera",
+ "t0_mono_ns": 224783772630083,
+ "mapping": {
+  "start_pose_square": [
+   0.7047957181930542,
+   -1.1048660278320312,
+   -2.296672821044922
+  ],
+  "first_odom": [
+   0.224781,
+   -0.102307,
+   -1.325828
+  ]
+ },
+ "outcome": "success: front 0.42 m from the target, speed 0.01 m/s",
+ "limits": {
+  "max_vx": 0.8,
+  "max_vy": 0.3,
+  "max_wz": 1.0,
+  "max_lin_accel": 1.0,
+  "max_yaw_accel": 2.0,
+  "command_hz": 20,
+  "state_timeout_s": 0.5,
+  "first_state_timeout_s": 5.0,
+  "max_script_s": 60.0,
+  "stop_repeats": 5
+ },
+ "actor": "/Users/aidanjmartin/ENGR6010_Go2X_SafeRL/results/phase2/nav_policy/nav_actor.pt",
+ "policy_steps": 0,
+ "final": "success: front 0.42 m from the target, speed 0.01 m/s"
+}

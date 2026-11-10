@@ -1,0 +1,7 @@
+{"t_mono_ns": 1564634783377583, "t_wall_ns": 1792268807573198000, "event": "connected"}
+{"t_mono_ns": 1564634807822541, "t_wall_ns": 1792268807597642000, "event": "first_state"}
+{"t_mono_ns": 1564634808017000, "t_wall_ns": 1792268807597836000, "event": "stand_up_request"}
+{"t_mono_ns": 1564636817109333, "t_wall_ns": 1792268809606911000, "event": "stand_up_done"}
+{"t_mono_ns": 1564650838359125, "t_wall_ns": 1792268823628036000, "event": "stop", "reason": "Ctrl+C"}
+{"t_mono_ns": 1564651111672041, "t_wall_ns": 1792268823901347000, "event": "stop_move_sent"}
+{"t_mono_ns": 1564651114583208, "t_wall_ns": 1792268823904258000, "event": "closed"}

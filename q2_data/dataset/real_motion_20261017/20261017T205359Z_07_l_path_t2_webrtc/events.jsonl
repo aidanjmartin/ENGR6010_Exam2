@@ -1,0 +1,13 @@
+{"t_mono_ns": 1566238595373291, "t_wall_ns": 1792270440391109000, "event": "connected"}
+{"t_mono_ns": 1566238595442458, "t_wall_ns": 1792270440391177000, "event": "first_state"}
+{"t_mono_ns": 1566238595769666, "t_wall_ns": 1792270440391504000, "event": "trial_start", "trial": 2, "start": [-2.042594, -0.764177, 2.868898]}
+{"t_mono_ns": 1566238595825208, "t_wall_ns": 1792270440391559000, "event": "segment_start", "segment": "leg1", "target_m": 0.5}
+{"t_mono_ns": 1566243616089125, "t_wall_ns": 1792270445411820000, "event": "segment_end", "segment": "leg1", "reached": true, "at_cutoff_m": 0.4383217428020201, "final_m": 0.42819664279393915, "drive_s": 3.75}
+{"t_mono_ns": 1566243616148666, "t_wall_ns": 1792270445411880000, "event": "segment_start", "segment": "turn", "target_deg": 90.0}
+{"t_mono_ns": 1566249975877875, "t_wall_ns": 1792270451771605000, "event": "segment_end", "segment": "turn", "reached": true, "final_deg": 80.4503394173415, "drive_s": 4.95}
+{"t_mono_ns": 1566249975962666, "t_wall_ns": 1792270451771689000, "event": "segment_start", "segment": "leg2", "target_m": 0.5}
+{"t_mono_ns": 1566254847806125, "t_wall_ns": 1792270456643529000, "event": "segment_end", "segment": "leg2", "reached": true, "at_cutoff_m": 0.42028191268480725, "final_m": 0.44480796816603907, "drive_s": 3.6}
+{"t_mono_ns": 1566254847896625, "t_wall_ns": 1792270456643619000, "event": "trial_end", "trial": 2, "end_rel": [0.48896754600259695, 0.5296320223071848], "dyaw_deg": 85.3011719982576}
+{"t_mono_ns": 1566254847934916, "t_wall_ns": 1792270456643657000, "event": "stop", "reason": "end of script"}
+{"t_mono_ns": 1566255116658375, "t_wall_ns": 1792270456912381000, "event": "stop_move_sent"}
+{"t_mono_ns": 1566255119341166, "t_wall_ns": 1792270456915063000, "event": "closed"}

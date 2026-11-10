@@ -1,0 +1,2 @@
+{"t_mono_ns": 1563864993496916, "t_wall_ns": 1792267905013502000, "event": "connected"}
+{"t_mono_ns": 1563874995062666, "t_wall_ns": 1792267915014618000, "event": "closed", "backend_info": {"backend": "webrtc", "library": "unitree_webrtc_connect e0abc57", "topic": "rt/lf/sportmodestate", "motion_mode": "mcf", "untested_on_hardware": true}}

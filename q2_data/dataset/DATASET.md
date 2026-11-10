@@ -1,6 +1,6 @@
 # Go2 dataset for the Second Test
 
-Three parts: real recordings of the Go2 X, simulated recordings of the MuJoCo Go2, and the per-run tables of the real robot runs. The simulated part follows the record layout of [`ShijieZhao36/unitree_go2_create_dataset`](https://github.com/ShijieZhao36/unitree_go2_create_dataset) (`cf01a90`). Its `robot_state` message holds `foot_force[4]`, `motor_q[12]`, `motor_dq[12]`, `motor_ddq[12]` and `motor_tau_est[12]`, recorded while a velocity command (`vx`, `vy`, `vyaw`) drives the robot. The simulated records keep those fields and add the command, the body velocity and the pose.
+Five parts: a real standing recording of the Go2 X, simulated recordings of the MuJoCo Go2, the raw logs of the real navigation runs and of the Phase 1 motion tests, and the per-run tables of the real robot runs. The simulated part follows the record layout of [`ShijieZhao36/unitree_go2_create_dataset`](https://github.com/ShijieZhao36/unitree_go2_create_dataset) (`cf01a90`). Its `robot_state` message holds `foot_force[4]`, `motor_q[12]`, `motor_dq[12]`, `motor_ddq[12]` and `motor_tau_est[12]`, recorded while a velocity command (`vx`, `vy`, `vyaw`) drives the robot. The simulated records keep those fields and add the command, the body velocity and the pose.
 
 ## 1. Real Go2 X, standing still (`real_exam1/`)
 
@@ -49,7 +49,33 @@ Each `<split>.npz` (compressed numpy) holds arrays of shape (episodes, 600, ...)
 
 Joint order (policy order): FL_hip, FR_hip, RL_hip, RR_hip, FL_thigh, FR_thigh, RL_thigh, RR_thigh, FL_calf, FR_calf, RL_calf, RR_calf. `<split>.json` records the episode count, seeds, falls, walker, run time and file size.
 
-## 3. Real robot runs (tables in `results/robot/`)
+## 3. Real navigation runs, 2026-11-06 (`real_runs_20261106/`)
+
+The navigation policy (Question 3, attempt 4) on the Go2 X over the robot's Wi-Fi hotspot (WebRTC, `unitree_webrtc_connect` `e0abc57`), with the robot pose from the overhead camera. Written by the project's `scripts/robot/run_nav_policy.py`; copied from the MacBook's project clone (`data/`) on 2026-11-10. One folder per run, named by its start time in UTC (`20261107T015345Z` is 7:53:45 PM on 2026-11-06 in Nashville). 25 navigation runs (19 with policy steps) and one read-only link check. The logs hold no robot address or serial number (checked with an IPv4 pattern and a key-name search); `header.json` names the laptop (`Aidan-MacBook`).
+
+All times are the MacBook's monotonic clock (`t_mono_ns`, ns) and wall clock (`t_wall_ns`, ns since 1970).
+
+| file | content |
+| :--- | :--- |
+| `header.json` | script, backend, safety limits (`max_vx` 0.8 m/s, `max_vy` 0.3 m/s, `max_wz` 1.0 rad/s, acceleration limits, 20 Hz), the policy file and its training job, the target |
+| `run.json` | scenario (start pose, chairs `[x, y, yaw, color]` with color 0 red, 1 blue, 2 green, 3 yellow by tag; table `[x, y, yaw]`; target `["chair", index]` or `["table", 0]`), pose source, start mapping, outcome |
+| `state.jsonl` | sport-mode state, about 20 Hz: `position` (odometry, m), `velocity` (vx, vy in the body frame, vz; m/s), `yaw_speed` (rad/s), `imu_state` (quaternion, gyroscope, accelerometer, roll-pitch-yaw), `body_height`, `foot_force`, `foot_position_body`, `foot_speed_body`, `mode`, `gait_type` |
+| `lowstate.jsonl` | low-level state, about 1 Hz: IMU roll-pitch-yaw and the 12 motor angles (`motor_state[i].q`, rad) with temperatures |
+| `commands.jsonl` | every command at 20 Hz: `requested` (vx, vy, wz before the safety layer) and `sent` (after its clamps and rate limits) |
+| `events.jsonl` | connection, stand-up, `policy_start` (odometry mapping), one `policy_step` per policy step (pose used, `pose_source` `camera` or `odometry`, action, command, distance to target), `policy_end` (outcome), stops |
+| `policy.npz` | per policy step: `t` (s since policy start), `pose` (x, y, yaw in the square frame, m and rad), `odom` (raw odometry x, y, yaw), `speed`, `action`, `cmd_policy`, `cmd_sent`, `distance`, `frame` (the 4 x 64 x 64 drawn image the policy read), `people` |
+| `detections.jsonl` | OWLv2 boxes (pixels), scores and labels about once a second, and the objects mapped to the floor |
+| `perception.jsonl` | the perceived layout (scenario) after each detection |
+| `camera.mp4` | the overhead camera (1280 x 720) with the tag and detection overlay, one frame per policy step at 10 frames per second. Re-encoded for size (H.264, CRF 26) on 2026-11-10; every frame kept |
+| `twin.mp4` | digital twin rendered in MuJoCo from the logs (`project/scripts/robot/render_twin.py`), one frame per sport-state message, 20 frames per second, 1600 x 480: fixed camera, chase camera, policy input |
+
+The square frame: origin at the center of the 3.048 m square, the corner tags 0 to 3 at its corners. Runs without policy steps have no camera or twin video; `20261107T014956Z` never connected and has no `run.json`. Per-run outcomes: `results/robot/nav_camera_runs_webrtc.md`.
+
+## 4. Real motion tests, 2026-10-17 (`real_motion_20261017/`)
+
+The Phase 1 motion scripts (project `main`, `scripts/motion/`) on the Go2 X over the Ethernet tether (WebRTC). Copied from the MacBook's course folder on 2026-11-10. 16 folders: a state read, two stand tests, forward 0.5 m at 0.2 m/s, rotate 90 degrees at 0.3 and 0.5 rad/s, lateral 0.3 m at 0.15, 0.2 and 0.3 m/s, the Phase 1 RL policy toward a goal, and L-path trials 1 to 5 (trial 1's first attempt and trial 5 never connected). Same `header.json`, `state.jsonl`, `commands.jsonl` and `events.jsonl` formats as above; no camera. Safety limits: `max_vx` 0.2 m/s, `max_vy` 0.2 m/s, `max_wz` 0.5 rad/s for the single-axis tests.
+
+## 5. Real robot run tables (`results/robot/`)
 
 | file | content |
 | :--- | :--- |
@@ -62,6 +88,6 @@ The Phase 1 single-axis tests used in `q2_data/small_commands.py` come from the 
 
 | data | where | why |
 | :--- | :--- | :--- |
-| raw logs of the 2026-10-17 motion tests and the 2026-11-06 camera runs (`state.jsonl`, `lowstate.jsonl`, `commands.jsonl`, `events.jsonl`, `policy.npz`, `tag_fixes.jsonl`, `detections.jsonl`, `perception.jsonl`) | the MacBook's project clone, `data/` (git-ignored) | never pushed; this repository was built on the Dell, which does not have them |
+| 2026-11-06 calibration images: ChArUco board views (`intrinsics_20261107T003255Z/`, 102 MB) and floor frames (`floor_frames/`, 131 MB) | the MacBook's project clone, `data/` | large; the calibration results are in the project's `config/` |
 | Isaac Lab walking transitions, 97,451 windows (`transitions_walk_eval.npz`, 13 MB) | the Dell, `~/dell-runner/data/ENGR6010_Go2X_SafeRL/040-walk-eval/` | job output, not in git |
 | 60 rendered atrium scenes with ground truth | the Dell, job 045 output | job output, not in git |

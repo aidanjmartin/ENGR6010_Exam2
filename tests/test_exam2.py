@@ -89,3 +89,30 @@ def test_mujoco_dog_walks_forward():
     for _ in range(60):
         st = dog.step([0.5, 0.0, 0.0])
     assert not dog.fallen() and st["pose"][0] > 0.8 and st["foot_force"].sum() > 50
+
+
+def test_real_runs_match_the_run_table():
+    """The raw 2026-11-06 logs give the counts of results/robot/nav_camera_runs_webrtc.md: 19 runs with policy steps,
+    14 successes, camera pose on 507 of 521 policy steps."""
+    from exam2.realruns import load_runs
+    runs = load_runs()
+    assert len(runs) == 19
+    assert sum(r["success"] for r in runs) == 14
+    assert sum(int(r["camera"].sum()) for r in runs) == 507
+    assert sum(len(r["t"]) for r in runs) == 521
+
+
+def test_odom_to_square_anchor_and_rigid():
+    """Odometry mapping: the anchor reading maps to the start pose, and distances are kept."""
+    from exam2.realruns import odom_to_square
+    start, first = np.array([0.5, -0.2, 1.0]), np.array([3.0, 4.0, -2.0])
+    odom = np.array([first, first + [0.3, -0.4, 0.5]])
+    m = odom_to_square(start, first, odom)
+    assert np.allclose(m[0], start)
+    assert np.isclose(np.hypot(*(m[1, :2] - m[0, :2])), 0.5)
+    assert np.isclose(m[1, 2] - m[0, 2], 0.5)
+
+
+def test_motion_tests_load():
+    from exam2.realruns import load_motion
+    assert len(load_motion()) == 11

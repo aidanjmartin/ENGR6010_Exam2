@@ -1,0 +1,66 @@
+{
+ "source": "camera (usb), target 'blue chair', obstacles from both",
+ "scenario": {
+  "robot_start": [
+   0.7047957361112549,
+   -1.1048660458717035,
+   -2.2966728964610548
+  ],
+  "chairs": [
+   [
+    -1.181703334789091,
+    -0.043511032375317615,
+    2.887439684379636,
+    1.0
+   ]
+  ],
+  "table": [],
+  "people": [
+   {
+    "start": [
+     -1.0495728208856134,
+     -1.1709881377560047
+    ],
+    "walking": false,
+    "a": null,
+    "b": null,
+    "script": []
+   }
+  ],
+  "target": [
+   "chair",
+   0
+  ]
+ },
+ "backend": "webrtc",
+ "pose_source": "camera",
+ "t0_mono_ns": 225898273097375,
+ "mapping": {
+  "start_pose_square": [
+   0.7047957181930542,
+   -1.1048660278320312,
+   -2.296672821044922
+  ],
+  "first_odom": [
+   -0.850017,
+   0.610767,
+   1.691585
+  ]
+ },
+ "outcome": "time limit",
+ "limits": {
+  "max_vx": 0.8,
+  "max_vy": 0.3,
+  "max_wz": 1.0,
+  "max_lin_accel": 1.0,
+  "max_yaw_accel": 2.0,
+  "command_hz": 20,
+  "state_timeout_s": 0.5,
+  "first_state_timeout_s": 5.0,
+  "max_script_s": 60.0,
+  "stop_repeats": 5
+ },
+ "actor": "/Users/aidanjmartin/ENGR6010_Go2X_SafeRL/results/phase2/nav_policy/nav_actor.pt",
+ "policy_steps": 0,
+ "final": "stopped: the camera has not seen the robot tag for ever"
+}
